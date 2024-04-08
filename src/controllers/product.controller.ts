@@ -1,4 +1,4 @@
-import { Request, response, Response} from 'express'
+import { Request, Response} from 'express'
 import { validate } from 'class-validator';
 import { ProductRepository } from '@/repositories/product.repository';
 import { CreateProductDTO, UpdateProductDTO } from '@/dto/product.dto';
