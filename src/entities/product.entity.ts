@@ -5,27 +5,27 @@ import { v4 as uuid } from 'uuid'
 @Entity('products')
 export class Product {
     @PrimaryColumn()
-    id: string;
+    id: string
 
     @Column()
     @IsNotEmpty()
     @Length(3, 255)
-    nome: string;
+    nome: string
 
     @Column()
     @IsNotEmpty()
     @Length(3, 255)
-    descricao: string;
+    descricao: string
 
     @Column()
     @IsNotEmpty()
-    peso: number;
+    peso: number
 
     @CreateDateColumn({
         name: 'created_at',
         type: 'timestamp',
     })
-    createdAt: Date;
+    createdAt: Date
 
     constructor() {
         if (!this.id) {
