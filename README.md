@@ -10,4 +10,4 @@ Este projeto consiste em uma API desenvolvida em TypeScript e Node.js para o ger
 - Node.js
 - Express.js
 - Postgre
-- -TypeORM
+- TypeORM
