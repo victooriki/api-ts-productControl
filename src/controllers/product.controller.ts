@@ -1,55 +1,49 @@
 import { Request, response, Response} from 'express'
-import AppDataSource from '@/database/connection';
-import { Product } from '@/entities/product.entity';
-import { Repository } from 'typeorm';
 import { validate } from 'class-validator';
+import { ProductRepository } from '@/repositories/product.repository';
+import { CreateProductDTO, UpdateProductDTO } from '@/dto/product.dto';
 
 class ProductController {
-    private productRepository: Repository<Product>
+    private productRepository: ProductRepository
 
     constructor() {
-        this.productRepository = AppDataSource.getRepository(Product)
+        this.productRepository = new ProductRepository
     }
 
-    async findAll(request: Request, response: Response): Promise<Response> {
-        const productRepository = AppDataSource.getRepository(Product)
-        const products = await productRepository.find()
+    findAll = async (request: Request, response: Response): Promise<Response> => {
+        const products = await this.productRepository.getAll()
 
         return response.status(200).send({
             data: products
         })
     }
 
-    async create(request: Request, response: Response): Promise<Response> {
+    create = async (request: Request, response: Response): Promise<Response> => {
         const {nome, peso, descricao} = request.body
 
-        const productRepository = AppDataSource.getRepository(Product)
+        const createDto = new CreateProductDTO
+        createDto.nome = nome
+        createDto.descricao = descricao
+        createDto.peso = peso
 
-        const product = new Product
-        product.nome = nome
-        product.peso = peso
-        product.descricao = descricao
-
-        const errors = await validate(product)
-
+        const errors = await validate(createDto)
         if (errors.length > 0) {
             return response.status(422).send({
-                errors: errors
+                error: errors
             })
         }
 
-        const dbProduct = await productRepository.save(product)
+        const dbProduct = await this.productRepository.create(createDto)
 
         return response.status(201).send({
             data: dbProduct
         })
     }
 
-    async findOne(request: Request, response: Response): Promise<Response> {
+    findOne = async (request: Request, response: Response): Promise<Response> => {
         const id: string = request.params.id
 
-        const productRepository = AppDataSource.getRepository(Product)
-        const product = await productRepository.findOneBy({ id })
+        const product = await this.productRepository.getOne(id)
 
         if(!product){
             return response.status(404).send({
@@ -62,36 +56,31 @@ class ProductController {
         })
     }
 
-    async update (request: Request, response: Response): Promise<Response> {
+    update = async (request: Request, response: Response): Promise<Response> => {
         const id = request.params.id
         const {nome, peso, descricao} = request.body
 
-        const productRepository = AppDataSource.getRepository(Product)
+        const updateDto = new UpdateProductDTO
+        updateDto.id = id
+        updateDto.nome = nome
+        updateDto.descricao = descricao
+        updateDto.peso = peso
 
-        let product
-
-        try {
-            product = await productRepository.findOneByOrFail({ id })
-        } catch (error) {
-            return response.status(404).send({
-                error: "Produto não encontrado!"
-            })
-        }
-
-        product.nome = nome
-        product.peso = peso
-        product.descricao = descricao
-
-        const errors = await validate(product)
-
+        const errors = await validate(updateDto)
         if (errors.length > 0) {
             return response.status(422).send({
-                errors: errors
+                error: errors
             })
         }
 
         try {
-            const productUpdated = await productRepository.save(product)
+            const productUpdated = await this.productRepository.update(updateDto)
+
+            if (!productUpdated) {
+                return response.status(404).send({
+                    error: "Produto não encontrado."
+                })
+            }
 
             return response.status(200).send({
                 data: productUpdated
@@ -103,13 +92,11 @@ class ProductController {
         }
     }
 
-    async delete (request: Request, response: Response): Promise<Response> {
+    delete = async (request: Request, response: Response): Promise<Response> => {
         const id = request.params.id
 
-        const productRepository = AppDataSource.getRepository(Product)
-
         try {
-            await productRepository.delete(id)
+            await this.productRepository.deleteOne(id)
 
             return response.status(204).send({
                 data: "Produto deletedado com sucesso!"
