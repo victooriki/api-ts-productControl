@@ -4,6 +4,7 @@ Este projeto consiste em uma API desenvolvida em TypeScript e Node.js para o ger
 ## Funcionalidades Principais
 - **CRUD de Produtos**: A API permite a criação, leitura, atualização e exclusão de produtos no sistema.
 - **Validação de Dados**: Os dados de entrada são validados para garantir a integridade e consistência dos dados.
+- **Autenticação**: Autenticação JWt para acesso as rotas.
 
 ## Tecnologias Utilizadas
 - TypeScript
